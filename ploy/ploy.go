@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 type Params map[string]string
@@ -120,6 +121,9 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 }
 
 func populatePlaceholders(s *string, params Params) {
+	timestamp := fmt.Sprintf("%s", time.Now().Format("20060102150405"))
+	*s = strings.ReplaceAll(*s, "{{timestamp}}", timestamp)
+
 	for k, v := range params {
 		*s = strings.ReplaceAll(*s, fmt.Sprintf("{{%s}}", k), v)
 	}

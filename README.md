@@ -1,11 +1,12 @@
 # Ploy
 ### A simplified deployment and task automation tool.
 
-**Usage**: `ploy [command] [options]`
+**Usage**: `ploy [command]`
 
 **Commands**:
-- `ploy init` - Initialize a new template ploy script.
-- `ploy run [options] [pipeline]...` - Run pipelines on their respective servers (provide -l to run them locally).
+- `init` - Initialize a new template ploy script.
+- `run [options] [pipeline]...` - Run pipelines on their respective servers (provide -l to run them locally).
+- `help` - Display the help message.
 
 **Configuration structure**:
 ```json
@@ -46,3 +47,6 @@
     }
 }
 ```
+
+**Auto populated params**:
+- `{{timestamp}}` - The current timestamp.
