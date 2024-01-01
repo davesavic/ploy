@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type Params map[string]string
@@ -36,16 +35,6 @@ type Config struct {
 	Servers   Servers   `json:"servers"`
 	Tasks     Tasks     `json:"tasks"`
 	Pipelines Pipelines `json:"pipelines"`
-}
-
-func (c *Config) HasTask(task string) bool {
-	_, exists := c.Tasks[task]
-	return exists
-}
-
-func (c *Config) HasRollbackTask(task string) bool {
-	_, exists := c.Tasks[fmt.Sprintf("rollback-%s", task)]
-	return exists
 }
 
 type PipelineExecutor interface {
@@ -88,7 +77,7 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 			Auth: []ssh.AuthMethod{
 				ssh.PublicKeys(signer),
 			},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Change for production
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //Update for production
 		}
 
 		client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", server.Host, server.Port), &sshCfg)
@@ -103,6 +92,7 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 			}
 
 			for _, c := range commands {
+				populatePlaceholders(&c, r.Config.Params)
 				session, err := client.NewSession()
 				if err != nil {
 					return "", fmt.Errorf("error creating SSH session: %v", err)
@@ -129,6 +119,12 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 	return out.String(), nil
 }
 
+func populatePlaceholders(s *string, params Params) {
+	for k, v := range params {
+		*s = strings.ReplaceAll(*s, fmt.Sprintf("{{%s}}", k), v)
+	}
+}
+
 type LocalPipelineExecutor struct {
 	Config Config
 }
@@ -136,12 +132,11 @@ type LocalPipelineExecutor struct {
 func (l *LocalPipelineExecutor) Execute(pipeline string) (string, error) {
 	var out bytes.Buffer
 
-	now := time.Now()
 	pl := l.Config.Pipelines[pipeline]
 
 	for _, t := range pl.Tasks {
 		for _, c := range l.Config.Tasks[t] {
-			c = strings.ReplaceAll(c, "{{timestamp}}", now.Format("20060102150405"))
+			populatePlaceholders(&c, l.Config.Params)
 			cmd := exec.Command("sh", "-c", c)
 			cmd.Stdout = &out
 			cmd.Stderr = &out

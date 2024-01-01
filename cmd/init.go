@@ -4,7 +4,11 @@ Copyright © 2023 Dave Savic
 package cmd
 
 import (
+	"encoding/json"
+	"github.com/davesavic/ploy/ploy"
 	"github.com/spf13/cobra"
+	"log"
+	"os"
 )
 
 // initCmd represents the init command
@@ -13,7 +17,40 @@ var initCmd = &cobra.Command{
 	Short: "Initialise a ploy script",
 	Long:  `Initialise a ploy script`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cfg := ploy.Config{
+			Params: map[string]string{
+				"message": "hello, world!",
+			},
+			Servers: map[string]ploy.Server{
+				"staging": {
+					Host:       "111.111.111.111",
+					Port:       22,
+					User:       "ploy",
+					PrivateKey: "/home/user/.ssh/id_rsa",
+				},
+			},
+			Tasks: map[string][]string{
+				"print-message": {
+					"echo '{{message}}'",
+				},
+			},
+			Pipelines: map[string]ploy.Pipeline{
+				"say-hello": {
+					Tasks: []string{
+						"print-message",
+					},
+					Servers: []string{
+						"staging",
+					},
+				},
+			},
+		}
 
+		jsCfg, _ := json.MarshalIndent(cfg, "", "	")
+		err := os.WriteFile("configuration.json", jsCfg, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 

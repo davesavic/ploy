@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"os"
+	"time"
 )
 
 // runCmd represents the run command
@@ -48,7 +49,7 @@ var runCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 
-			fmt.Println(out)
+			fmt.Printf("%s\n"+out, time.Now().UTC().Format("2006-01-02 15:04:05"))
 		}
 	},
 }
