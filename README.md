@@ -1,26 +1,33 @@
 # Ploy
-### A simplified deployment and task automation tool.
+**Ploy** is a tool designed to automate and streamline the process of software deployment and task execution across various environments. It offers a simplified and flexible solution for managing complex deployment workflows and executing predefined tasks on local or remote servers.
 
-**Installation**: Download the latest release for your os from the [releases page](https://github.com/davesavic/ploy/releases)
+### Key Features
+- **Simplified Deployment**: Define and execute deployment processes with ease, across multiple servers and environments.
+- **Task Automation**: Automate repetitive tasks with customizable scripts.
+- **Configurable Pipelines**: Set up pipelines for different deployment or task scenarios, ensuring consistency and reliability.
+- **Parameter Substitution**: Dynamically substitute parameters in tasks, making your scripts more flexible and environment-agnostic.
 
-**Usage**: `ploy [command]`
 
-**Commands**:
+### Installation
+Download the latest release for your os from the [releases page](https://github.com/davesavic/ploy/releases)
+
+### Usage
+`ploy [command]`
+
+### Commands
 - `init` - Initialize a new template ploy script.
 - `run [options] [pipeline]...` - Run pipelines on their respective servers (provide `-l` to run them locally).
 - `help` - Display the help message.
 
-**Configuration structure**:
+### Configuration structure
 ```json
 {
     "params": {
-        // Parameters to be populated within tasks
-        // Keys are the parameter names, values are the parameter values
+        // User-defined parameters for tasks
         "message": "hello, world!"
     },
     "servers": {
-        // Servers to be used in pipelines
-        // Keys are the server names, values are the server configurations
+        // Server configurations for remote execution
         "staging": {
             "host": "111.111.111.111",
             "port": 22,
@@ -29,26 +36,33 @@
         }
     },
     "tasks": {
-        // Tasks to be used in pipelines
-        // Keys are the task names, values are the task commands
+        // Task definitions for automation
         "print-message": [
             "echo '{{message}}'"
         ]
     },
     "pipelines": {
-        // Pipelines to be run
-        // Keys are the pipeline names, values are the pipeline configurations
+        // Pipeline configurations for deployment or task execution
         "say-hello": {
-            "servers": [
-                "staging"
-            ],
-            "tasks": [
-                "print-message"
-            ]
+            "servers": ["staging"],
+            "tasks": ["print-message"]
         }
     }
 }
 ```
 
-**Auto populated params**:
-- `{{timestamp}}` - The current timestamp.
+### Auto populated parameters
+- `{{timestamp}}` -  Inserts the current timestamp into tasks.
+- More to come...
+
+### Getting started
+To get started with Ploy, follow these steps:
+
+1. **Install Ploy**: Download and install the latest version from the [releases page](https://github.com/davesavic/ploy/releases).
+2. **Initialize Configuration**: Run `ploy init` to generate a baseline configuration file.
+3. **Customize Configuration**: Edit the generated `configuration.json` to suit your deployment and task requirements.
+4. **Run Ploy**: Execute your configurations using `ploy run [pipelines (run multiple separated by a space)]`.
+
+### Contributing
+Contributions to Ploy are welcome! 
+If you have suggestions, bug reports, or want to contribute code, please visit create the relevant report.
