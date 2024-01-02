@@ -1,11 +1,13 @@
 # Ploy
 ### A simplified deployment and task automation tool.
 
+**Installation**: Download the latest release for your os from the [releases page](https://github.com/davesavic/ploy/releases)
+
 **Usage**: `ploy [command]`
 
 **Commands**:
 - `init` - Initialize a new template ploy script.
-- `run [options] [pipeline]...` - Run pipelines on their respective servers (provide -l to run them locally).
+- `run [options] [pipeline]...` - Run pipelines on their respective servers (provide `-l` to run them locally).
 - `help` - Display the help message.
 
 **Configuration structure**:
