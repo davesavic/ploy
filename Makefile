@@ -29,3 +29,8 @@ release:
 	trap - ERR;
 
 .PHONY: release
+
+test:
+	go test ./... -cover -coverprofile=coverage.out
+
+.PHONY: test

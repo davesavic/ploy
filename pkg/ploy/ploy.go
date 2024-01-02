@@ -47,7 +47,10 @@ type RemotePipelineExecutor struct {
 }
 
 func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
-	pl := r.Config.Pipelines[pipeline]
+	pl, exists := r.Config.Pipelines[pipeline]
+	if !exists {
+		return "", fmt.Errorf("pipeline %s is not defined", pipeline)
+	}
 
 	var out bytes.Buffer
 
@@ -89,7 +92,7 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 		for _, t := range pl.Tasks {
 			commands, exists := r.Config.Tasks[t]
 			if !exists {
-				return "", fmt.Errorf("task %s does not exist", t)
+				return "", fmt.Errorf("task %s is not defined", t)
 			}
 
 			for _, c := range commands {
@@ -136,10 +139,18 @@ type LocalPipelineExecutor struct {
 func (l *LocalPipelineExecutor) Execute(pipeline string) (string, error) {
 	var out bytes.Buffer
 
-	pl := l.Config.Pipelines[pipeline]
+	pl, exists := l.Config.Pipelines[pipeline]
+	if !exists {
+		return "", fmt.Errorf("pipeline %s is not defined", pipeline)
+	}
 
 	for _, t := range pl.Tasks {
-		for _, c := range l.Config.Tasks[t] {
+		task, exists := l.Config.Tasks[t]
+		if !exists {
+			return "", fmt.Errorf("task %s is not defined", t)
+		}
+
+		for _, c := range task {
 			populatePlaceholders(&c, l.Config.Params)
 			cmd := exec.Command("sh", "-c", c)
 			cmd.Stdout = &out
@@ -157,16 +168,4 @@ func (l *LocalPipelineExecutor) Execute(pipeline string) (string, error) {
 
 type Ploy struct {
 	Config Config
-}
-
-func NewPloy(cfg Config) *Ploy {
-	return &Ploy{Config: cfg}
-}
-
-func (p *Ploy) RunRollbackTask(task string) error {
-	for _, c := range p.Config.Tasks[fmt.Sprintf("rollback-%s", task)] {
-		fmt.Println("ROLLBACK TASK: ", c)
-	}
-
-	return nil
 }

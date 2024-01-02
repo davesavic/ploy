@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"encoding/json"
-	"github.com/davesavic/ploy/ploy"
+	"github.com/davesavic/ploy/pkg/ploy"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
