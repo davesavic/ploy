@@ -64,7 +64,7 @@ To get started with Ploy, follow these steps:
 4. **Run Ploy**: Execute your configurations using `ploy run [pipelines (run multiple separated by a space)]`.
 
 ### Recipes
-- [Zero Downtime Deployments](https://github.com/davesavic/ploy/recipes/zero-downtime-deployment.json)
+- [Zero Downtime Deployments](https://github.com/davesavic/ploy/blob/master/recipes/zero-downtime-deployment.json)
 
 ### Contributing
 Contributions to Ploy are welcome! 
