@@ -52,7 +52,7 @@ func TestRemotePipelineExecutor_Execute2(t *testing.T) {
 		{
 			name:           "valid execution",
 			pipeline:       "test",
-			expectedOutput: "Hello, World!",
+			expectedOutput: "Running task",
 			prepareFunc: func() (*SSHTestServer, ploy.Config) {
 				s := NewSSHTestServer("localhost:2222")
 				s.SetOutputString("Hello, World!")

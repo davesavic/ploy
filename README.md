@@ -63,6 +63,9 @@ To get started with Ploy, follow these steps:
 3. **Customize Configuration**: Edit the generated `configuration.json` to suit your deployment and task requirements.
 4. **Run Ploy**: Execute your configurations using `ploy run [pipelines (run multiple separated by a space)]`.
 
+### Recipes
+- [Zero Downtime Deployments](https://github.com/davesavic/ploy/recipes/zero-downtime-deployment.json)
+
 ### Contributing
 Contributions to Ploy are welcome! 
 If you have suggestions, bug reports, or want to contribute code, please visit create the relevant report.

@@ -43,7 +43,8 @@ type PipelineExecutor interface {
 }
 
 type RemotePipelineExecutor struct {
-	Config Config
+	Config  Config
+	Verbose bool
 }
 
 func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
@@ -59,7 +60,7 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 	}
 
 	for _, s := range pl.Servers {
-		out.Write([]byte(fmt.Sprintf("Running pipeline %s on server %s\n", pipeline, s)))
+		out.Write([]byte(fmt.Sprintf("Running pipeline [%s] on server [%s]\n", pipeline, s)))
 
 		server, exists := r.Config.Servers[s]
 		if !exists {
@@ -76,6 +77,10 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 			return "", fmt.Errorf("error parsing private key (%s): %v", server.PrivateKey, err)
 		}
 
+		if r.Verbose {
+			out.Write([]byte("	Private key successfully loaded\n"))
+		}
+
 		sshCfg := ssh.ClientConfig{
 			User: server.User,
 			Auth: []ssh.AuthMethod{
@@ -89,14 +94,25 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 			return "", fmt.Errorf("error dialing SSH server (%s): %v", s, err)
 		}
 
+		if r.Verbose {
+			out.Write([]byte("	SSH connection established\n"))
+		}
+
 		for _, t := range pl.Tasks {
 			commands, exists := r.Config.Tasks[t]
 			if !exists {
 				return "", fmt.Errorf("task %s is not defined", t)
 			}
 
+			out.Write([]byte(fmt.Sprintf("	Running task: %s\n", t)))
+
 			for _, c := range commands {
 				populatePlaceholders(&c, r.Config.Params)
+
+				if r.Verbose {
+					out.Write([]byte(fmt.Sprintf("		Executing: %s\n", c)))
+				}
+
 				session, err := client.NewSession()
 				if err != nil {
 					return "", fmt.Errorf("error creating SSH session: %v", err)
@@ -107,7 +123,9 @@ func (r *RemotePipelineExecutor) Execute(pipeline string) (string, error) {
 					return "", fmt.Errorf("error running command (%s): %v", c, err)
 				}
 
-				out.Write(op)
+				if r.Verbose {
+					out.Write([]byte(fmt.Sprintf("		Output: %s\n\n", op)))
+				}
 
 				if err := session.Close(); err != nil && err != io.EOF {
 					return "", fmt.Errorf("error closing SSH session: %v", err)
@@ -133,7 +151,8 @@ func populatePlaceholders(s *string, params Params) {
 }
 
 type LocalPipelineExecutor struct {
-	Config Config
+	Config  Config
+	Verbose bool
 }
 
 func (l *LocalPipelineExecutor) Execute(pipeline string) (string, error) {

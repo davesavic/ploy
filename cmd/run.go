@@ -19,7 +19,8 @@ var runCmd = &cobra.Command{
 	Short: "Run a ploy pipeline",
 	Long:  `Run a ploy pipeline`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cf, err := os.ReadFile("configuration.json")
+		configPath, _ := cmd.Flags().GetString("config")
+		cf, err := os.ReadFile(configPath)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -37,11 +38,12 @@ var runCmd = &cobra.Command{
 		for _, arg := range args {
 			var executor ploy.PipelineExecutor
 			local, _ := cmd.Flags().GetBool("local")
+			verbose, _ := cmd.Flags().GetBool("verbose")
 
 			if local {
-				executor = &ploy.LocalPipelineExecutor{Config: cfg}
+				executor = &ploy.LocalPipelineExecutor{Config: cfg, Verbose: verbose}
 			} else {
-				executor = &ploy.RemotePipelineExecutor{Config: cfg}
+				executor = &ploy.RemotePipelineExecutor{Config: cfg, Verbose: verbose}
 			}
 
 			out, err := executor.Execute(arg)
@@ -58,4 +60,6 @@ func init() {
 	rootCmd.AddCommand(runCmd)
 
 	runCmd.Flags().BoolP("local", "l", false, "Run the pipeline locally")
+	runCmd.Flags().String("config", "configuration.json", "Path to configuration file")
+	runCmd.Flags().BoolP("verbose", "v", false, "Verbose output")
 }

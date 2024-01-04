@@ -1,0 +1,58 @@
+{
+    "params": {
+        "deployment-dir": "/srv/www/app/",
+        "serving-dir": "/srv/www/app/current",
+        "retention": "5",
+        "timestamp-file": "/tmp/deployment_timestamp"
+    },
+    "servers": {
+        "staging": {
+            "host": "111.111.111.111",
+            "port": 22,
+            "user": "ploy",
+            "private-key": "/home/user/.ssh/id_rsa"
+        }
+    },
+    "tasks": {
+        "generate-timestamp": [
+            "echo '{{timestamp}}' > {{timestamp-file}}"
+        ],
+        "create-deployment-dir": [
+            "timestamp=$(cat {{timestamp-file}}) && mkdir -p {{deployment-dir}}$timestamp"
+        ],
+        "deploy-app": [
+            "timestamp=$(cat {{timestamp-file}}) && touch {{deployment-dir}}$timestamp/deployed.txt"
+        ],
+        "update-symlink": [
+            "timestamp=$(cat {{timestamp-file}}) && ln -sfn {{deployment-dir}}$timestamp {{serving-dir}}"
+        ],
+        "cleanup-old-deployments": [
+            "ls -1 {{deployment-dir}} | grep -P '^\\d{14}$' | head -n -5 | xargs -I {} rm -rf {{deployment-dir}}{}"
+        ],
+        "rollback-to-previous": [
+            "prev_deployment=$(ls -1 {{deployment-dir}} | grep -P '^\\d{14}$' | tail -n 2 | head -n 1) && ln -sfn {{deployment-dir}}$prev_deployment {{serving-dir}} && echo $prev_deployment > /tmp/current_deployment"
+        ]
+    },
+    "pipelines": {
+        "deploy": {
+            "tasks": [
+                "generate-timestamp",
+                "create-deployment-dir",
+                "deploy-app",
+                "update-symlink",
+                "cleanup-old-deployments"
+            ],
+            "servers": [
+                "staging"
+            ]
+        },
+        "rollback": {
+            "tasks": [
+                "rollback-to-previous"
+            ],
+            "servers": [
+                "staging"
+            ]
+        }
+    }
+}
