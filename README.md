@@ -68,4 +68,4 @@ To get started with Ploy, follow these steps:
 
 ### Contributing
 Contributions to Ploy are welcome! 
-If you have suggestions, bug reports, or want to contribute code, please visit create the relevant report.
+If you have suggestions, bug reports, or want to contribute code, please create the relevant report.
